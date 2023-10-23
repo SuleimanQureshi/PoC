@@ -128,7 +128,6 @@
 
 
 
-
     % Determine the pose of end-effector in provided configuration
     poseNow = getTransform(robot,config,"body4");
     
