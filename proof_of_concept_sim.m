@@ -151,5 +151,4 @@
     % R14 = poseNow01(1:3,1:3)'*poseNow(1:3,1:3);
     % angle = rad2deg(atan2(R14(2,1),R14(1,1)));
     % disp(['Angle: ',num2str(angle), ' degrees.']);
-    
-
+   
