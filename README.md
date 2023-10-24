@@ -5,6 +5,7 @@ Current tasks:
 - Split into two modes of approach and grasp
 - Get real data from a gyroscope and use it to generate a trajectory for the simulation arm to attempt to grasp
 - Add 3d model to represent the robot arm for visualization purposes
+- start from a random trajec and then try to follow then path of the object being handed (make sure to visualize the path of the object) [add a movement constraint (cant move more than theta degrees per sec)]
 
 Completed tasks:
 - Add orientation constraint
