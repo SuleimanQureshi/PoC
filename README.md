@@ -4,6 +4,7 @@ This repo contains the MATLAB files for the proof of concept for the final year 
 Current tasks:
 - Split into two modes of approach and grasp
 - Get real data from a gyroscope and use it to generate a trajectory for the simulation arm to attempt to grasp
+- Add 3d model to represent the robot arm for visualization purposes
 
 Completed tasks:
 - Add orientation constraint
