@@ -85,17 +85,23 @@
     theta5_history = linspace(1,pi,length(t));
     
     %%
-
+    robot_end_eff_positions = zeros(3,length(t));
     for i = 1:length(t)
         
         % you go through all the calculated configurations to trace path
         configNow = [theta1_history(i)   theta2_history(i) theta3_history(i) theta4_history(i) theta5_history(i)];
         % Display robot in provided configuration
         config = homeConfiguration(robot);
-        
+
         for j = 1:numJoints
             config(j).JointPosition = configNow(j);
         end
+        getTransform(robot,config,"base","body5")
+        poseNow = getTransform(robot,config,"base","body5");
+        poseNow = -poseNow(1:3,1:3)*poseNow(1:3,4);
+        robot_end_eff_positions(1,i) = poseNow(1);
+        robot_end_eff_positions(2:2,i:i) = poseNow(2);
+        robot_end_eff_positions(3:3,i:i) = poseNow(3);
         % frame1 = getTransform(robot,config, "body1");
         % frame2 = getTransform(robot,config, "body2");
         % frame3 = getTransform(robot,config, "body3");
@@ -111,19 +117,9 @@
         ahem = show(robot,config);
         fig = gcf;
 
-        plot3(object_trajec(1,i),object_trajec(2,i),object_trajec(3,i))
+        plot3(object_trajec(1,1:i),object_trajec(2,1:i),object_trajec(3,1:i),'LineWidth',2,'Color','b');
+        plot3(robot_end_eff_positions(1,1:i),robot_end_eff_positions(2,1:i),robot_end_eff_positions(3,1:i),'LineWidth',2,'Color','r');
 
-        % Loop through each joint frame and modify its appearance
-        % for iii = 1:numel(robot.Bodies)
-        %     % Assuming that the joint frame handles are stored in the UserData property
-        %     jointFrameHandle = robot.Bodies(iii).UserData;
-        % 
-        %     if isvalid(jointFrameHandle)
-        %         % Modify the appearance of the joint frame as desired
-        %         set(jointFrameHandle, 'MarkerSize', 50, 'MarkerEdgeColor', 'r');
-        %     end
-        % end
-        plot3(object_trajec(1,i), object_trajec(2,i), object_trajec(3,i))
         view(-60,30)
         hold off
         pause(GraphingTimeDelay)
