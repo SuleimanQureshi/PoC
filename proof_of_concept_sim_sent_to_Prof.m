@@ -88,6 +88,7 @@
         clf;
         hold on;
         grid on;
+        plot3(object_trajec(1,t),object_trajec(2,t),object_trajec(3,t))
 
         axis([-3 3 -3 3 -3 3])
         axis vis3d;

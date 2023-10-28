@@ -31,12 +31,15 @@
         end
     end
    % make a IK solver for our robot
-   gik = generalizedInverseKinematics('RigidBodyTree',robot,'ConstraintInputs',{'position'});
+   gik = generalizedInverseKinematics('RigidBodyTree',robot,'ConstraintInputs',{'position','aiming'});
 
     % this is the object's trajectory that we want to grasp
     object_trajec = [linspace(1.5,0.1,length(t)); linspace(1.5,0.1,length(t)); linspace(1.5,1,length(t));];
     % we want the end effector (or body 5) to be at the point of interest
     posTgt = constraintPositionTarget("body5"); 
+
+    aimingTgt = constraintAiming("body5");
+    
     % This is is the path we want to follow in joint angle terms
     histories = [zeros(5,length(t));];
     ini_guess = homeConfiguration(robot);
@@ -45,7 +48,9 @@
         if (j==1)
         % target position is where the object is right now
         posTgt.TargetPosition = object_trajec(:,j);
-        [configSol, solInfo] = gik(ini_guess,posTgt);
+        aimingTgt.TargetPoint = [0, 0, -100];
+        [configSol, solInfo] = gik(ini_guess,posTgt,aimingTgt);
+
         histories(:,j) = [configSol(1).JointPosition configSol(2).JointPosition configSol(3).JointPosition configSol(4).JointPosition configSol(5).JointPosition];
         else 
             % initial guess is the previous position
@@ -55,7 +60,7 @@
             ini_guess(4).JointPosition = histories(4,j-1);
             ini_guess(5).JointPosition = histories(5,j-1);
             posTgt.TargetPosition = object_trajec(:,j);
-            [configSol, solInfo] = gik(ini_guess,posTgt);
+            [configSol, solInfo] = gik(ini_guess,posTgt,aimingTgt);
             histories(:,j) = [configSol(1).JointPosition configSol(2).JointPosition configSol(3).JointPosition configSol(4).JointPosition configSol(5).JointPosition];
 
         end
@@ -128,6 +133,7 @@
 
 
 
+
     % Determine the pose of end-effector in provided configuration
     poseNow = getTransform(robot,config,"body4");
     
@@ -145,7 +151,7 @@
     % poseNow(1:3,1:3)
     % disp(' ');
     % disp('The orientation angle is given with respect to the x-axis of joint 2:');
-    % disp('');
+    % disp(''); 
     % poseNow01 = getTransform(robot,config,"body1");
     % R14 = poseNow01(1:3,1:3)'*poseNow(1:3,1:3);
     % angle = rad2deg(atan2(R14(2,1),R14(1,1)));

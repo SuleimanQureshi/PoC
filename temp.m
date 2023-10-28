@@ -1,4 +1,4 @@
-    %% Setup 
+%% Setup 
     % Define our time vector.
     tStart = 0;   % The time at which the simulation starts, in seconds.
     tStep = 0.1; % The simulation's time step, in seconds.
@@ -31,19 +31,12 @@
         end
     end
    % make a IK solver for our robot
-   gik = generalizedInverseKinematics('RigidBodyTree', robot, ...
-                                      'ConstraintInputs', {'position', ...
-                                                           'aiming'});
+   gik = generalizedInverseKinematics('RigidBodyTree',robot,'ConstraintInputs',{'position'});
 
     % this is the object's trajectory that we want to grasp
-    object_trajec = [linspace(1.5,0.1,length(t)); 
-                     linspace(1.5,0.1,length(t)); 
-                     linspace(1.5,1,length(t));];
+    object_trajec = [linspace(1.5,0.1,length(t)); linspace(1.5,0.1,length(t)); linspace(1.5,1,length(t));];
     % we want the end effector (or body 5) to be at the point of interest
     posTgt = constraintPositionTarget("body5"); 
-
-    aimingTgt = constraintAiming("body5");
-    
     % This is is the path we want to follow in joint angle terms
     histories = [zeros(5,length(t));];
     ini_guess = homeConfiguration(robot);
@@ -52,14 +45,8 @@
         if (j==1)
         % target position is where the object is right now
         posTgt.TargetPosition = object_trajec(:,j);
-        aimingTgt.TargetPoint = [0, 0, -100];
-        [configSol, solInfo] = gik(ini_guess,posTgt,aimingTgt);
-
-        histories(:,j) = [configSol(1).JointPosition 
-                          configSol(2).JointPosition 
-                          configSol(3).JointPosition 
-                          configSol(4).JointPosition 
-                          configSol(5).JointPosition];
+        [configSol, solInfo] = gik(ini_guess,posTgt);
+        histories(:,j) = [configSol(1).JointPosition configSol(2).JointPosition configSol(3).JointPosition configSol(4).JointPosition configSol(5).JointPosition];
         else 
             % initial guess is the previous position
             ini_guess(1).JointPosition = histories(1,j-1);
@@ -68,12 +55,8 @@
             ini_guess(4).JointPosition = histories(4,j-1);
             ini_guess(5).JointPosition = histories(5,j-1);
             posTgt.TargetPosition = object_trajec(:,j);
-            [configSol, solInfo] = gik(ini_guess,posTgt,aimingTgt);
-            histories(:,j) = [configSol(1).JointPosition 
-                              configSol(2).JointPosition 
-                              configSol(3).JointPosition 
-                              configSol(4).JointPosition 
-                              configSol(5).JointPosition];
+            [configSol, solInfo] = gik(ini_guess,posTgt);
+            histories(:,j) = [configSol(1).JointPosition configSol(2).JointPosition configSol(3).JointPosition configSol(4).JointPosition configSol(5).JointPosition];
 
         end
     end
@@ -81,15 +64,15 @@
     theta2_history = histories(2,:);
     theta3_history = histories(3,:);
     theta4_history = histories(4,:);
-    % theta5_history = histories(5,:);
-    theta5_history = linspace(1,pi,length(t));
+    theta5_history = histories(5,:);
     
-    %%
-
+    % I think this type of code will be used for positioning 
+    % (i could be wrong)
+    % aimCon = constraintAiming("body5");
+    % aimCon.TargetPoint = [0.0 0.0 0.0];
     for i = 1:length(t)
-        
         % you go through all the calculated configurations to trace path
-        configNow = [theta1_history(i)   theta2_history(i) theta3_history(i) theta4_history(i) theta5_history(i)];
+        configNow = [pi/2 pi/2 -pi/2 pi 0];
         % Display robot in provided configuration
         config = homeConfiguration(robot);
         
@@ -108,21 +91,8 @@
 
         axis([-3 3 -3 3 -3 3])
         axis vis3d;
-        ahem = show(robot,config);
-        fig = gcf;
-
-        plot3(object_trajec(1,i),object_trajec(2,i),object_trajec(3,i))
-
-        % Loop through each joint frame and modify its appearance
-        % for iii = 1:numel(robot.Bodies)
-        %     % Assuming that the joint frame handles are stored in the UserData property
-        %     jointFrameHandle = robot.Bodies(iii).UserData;
-        % 
-        %     if isvalid(jointFrameHandle)
-        %         % Modify the appearance of the joint frame as desired
-        %         set(jointFrameHandle, 'MarkerSize', 50, 'MarkerEdgeColor', 'r');
-        %     end
-        % end
+        show(robot,config);
+        
         plot3(object_trajec(1,i), object_trajec(2,i), object_trajec(3,i))
         view(-60,30)
         hold off
@@ -162,9 +132,10 @@
     % poseNow(1:3,1:3)
     % disp(' ');
     % disp('The orientation angle is given with respect to the x-axis of joint 2:');
-    % disp(''); 
+    % disp('');
     % poseNow01 = getTransform(robot,config,"body1");
     % R14 = poseNow01(1:3,1:3)'*poseNow(1:3,1:3);
     % angle = rad2deg(atan2(R14(2,1),R14(1,1)));
     % disp(['Angle: ',num2str(angle), ' degrees.']);
-   
+    
+
